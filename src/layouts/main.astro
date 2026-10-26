@@ -7,7 +7,18 @@ import "@/styles/global.css"
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Astro App</title>
+    <title>proj4ui</title>
+    <script is:inline>
+      // Apply the saved theme before first paint to avoid a flash.
+      let theme = null
+      try {
+        theme = localStorage.getItem("theme")
+      } catch {}
+      if (theme !== "light" && theme !== "dark") {
+        theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      }
+      document.documentElement.classList.toggle("dark", theme === "dark")
+    </script>
   </head>
   <body>
     <slot />

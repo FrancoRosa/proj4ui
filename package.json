@@ -38,6 +38,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9",
     "@eslint/js": "^10",
+    "@types/geojson": "^7946.0.16",
     "@types/papaparse": "^5.5.2",
     "@types/proj4": "^2.19.0",
     "eslint": "^10",

@@ -128,3 +128,20 @@
     @apply font-mono;
     }
 }
+.map-popup {
+    font-size: 0.75rem;
+    color: #18181b;
+}
+
+.map-popup th {
+    padding-right: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Keep the Mapbox zoom controls clear of the floating Outputs card. */
+@media (min-width: 1024px) {
+    .mapboxgl-map .mapboxgl-ctrl-top-right {
+        right: calc(340px + 1.5rem);
+    }
+}

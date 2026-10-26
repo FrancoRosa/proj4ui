@@ -12,27 +12,26 @@ Tool to convert coordinates from any EPSG code (default: EPSG:4326, lat/lng) to 
 
 ### Layout
 
-The screen is split into three columns: the **Inputs** card on the left, the Mapbox map in the center, and the **Outputs** card on the right.
+The Mapbox map fills the whole screen. The **Inputs** card floats over its left side and the **Outputs** card over its right side, and a light / dark mode toggle sits at the top center.
 
 ```
-┌──────────────┬──────────────────────────────────┬──────────────┐
-│  INPUTS      │                                  │  OUTPUTS     │
-│              │                                  │              │
-│  [EPSG ▾]    │                                  │  [EPSG ▾]    │
-│  EPSG name   │                                  │  EPSG name   │
-│              │            MAPBOX MAP            │              │
-│  [Upload]    │                                  │              │
-│  x col [▾]   │                                  │              │
-│  y col [▾]   │                                  │              │
-│  preview     │                                  │  preview     │
-│              │                                  │              │
-│  [Show pts]  │                                  │  [Show pts]  │
-│  [Convert]   │                                  │  [Download]  │
-└──────────────┴──────────────────────────────────┴──────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│ ┌────────────┐               [☾]                ┌────────────┐ │
+│ │ INPUTS     │                                  │ OUTPUTS    │ │
+│ │ [EPSG ▾]   │                                  │ [EPSG ▾]   │ │
+│ │ EPSG name  │                                  │ EPSG name  │ │
+│ │ [Upload]   │                                  │ preview    │ │
+│ │ x col [▾]  │          MAPBOX MAP              │ [Show pts] │ │
+│ │ y col [▾]  │        (full screen)             │ [Convert]  │ │
+│ │ preview    │                                  │ [Download] │ │
+│ │ [Show pts] │                                  └────────────┘ │
+│ └────────────┘                                                 │
+└────────────────────────────────────────────────────────────────┘
 ```
 
-- The map fills the center column and the full height of the screen.
-- Both cards have the same width and sit on either side of the map.
+- The cards are 340px wide, as tall as their content, and have an 80% opaque, blurred background so the map shows through.
+- On narrow screens the map stays full screen and the cards stack below a map-sized gap.
+- The theme toggle switches the app and the basemap (Mapbox Streets / Dark). The choice is remembered, and defaults to the system setting.
 
 ### Shared card elements
 
@@ -40,7 +39,7 @@ Both cards contain:
 
 | Element | Behavior |
 | --- | --- |
-| **EPSG selector** | Combobox where the user can type an EPSG code or search by name, or pick from a dropdown. Shows the full name of the selected EPSG below the selector. The definition is fetched from epsg.io (`https://epsg.io/<code>.proj4`) and registered with proj4. Default: `EPSG:4326` for inputs. |
+| **EPSG selector** | Combobox to search EPSG codes by code or name (e.g. "utm 18s peru"). Built-in common codes and previously picked codes (remembered in the browser) are matched instantly; with `PUBLIC_MAPTILER_KEY` set, the query is also sent to the MapTiler Coordinates API (the search behind epsg.io) after a short pause, so every EPSG projected / geographic CRS can be found. Without the key, typing a code number that isn't in the list (4+ digits) looks it up on epsg.io instead. Shows the full name of the selected EPSG below the selector. Definitions come from the search result or from epsg.io (`https://epsg.io/<code>.proj4`, name from `https://epsg.io/<code>.json`) and are registered with proj4. Default: `EPSG:4326` for inputs. |
 | **Show points button** | Toggles the card's points on the map (input points on the Inputs card, output points on the Outputs card). When turned on, the map fits its bounds to those points. Disabled when the card has no points. |
 | **Data preview** | Table with the first rows of the card's data. |
 
@@ -51,18 +50,19 @@ Both cards contain:
 | **Upload button** | Opens a file picker for a `.csv` file. The file is parsed with PapaParse, using the first row as the header. |
 | **X / Y column selectors** | Dropdowns listing the CSV headers, to choose which column holds x (lng / easting) and which holds y (lat / northing). Shown after a file is uploaded. |
 | **Single coordinate** | Optional x / y text fields to convert one coordinate without a file. |
-| **Convert button** | Converts every row from the input EPSG to the output EPSG with proj4 and fills the Outputs card. Disabled until an input EPSG, an output EPSG and the x / y columns (or a single coordinate) are set. |
 
 ### Outputs card (right)
 
 | Element | Behavior |
 | --- | --- |
 | **EPSG selector** | Target projection for the conversion. Changing it after a conversion clears the outputs until Convert is pressed again. |
+| **Convert button** | Converts every row from the input EPSG to the output EPSG with proj4 and fills the Outputs card. Disabled until an input EPSG, an output EPSG and the x / y columns (or a single coordinate) are set. |
 | **Download button** | Downloads the converted data as a CSV: all the original columns plus the converted x / y columns. Disabled until a conversion has run. |
 
-### Map (center)
+### Map
 
 - Mapbox GL map; the access token is read from the `PUBLIC_MAPBOX_TOKEN` environment variable.
+- Both keys are public (bundled into the page), so restrict them to the app's origins in the Mapbox and MapTiler dashboards.
 - Input points and output points use different colors, matching each card's accent color.
 - Points are always drawn in WGS84 (EPSG:4326), so the coordinates of each card are reprojected to EPSG:4326 for display only.
 - Clicking a point shows a popup with the row's values.
@@ -78,7 +78,7 @@ Astro + React + TypeScript + shadcn/ui, with proj4, PapaParse and Mapbox GL.
 
 ```bash
 pnpm install
-echo "PUBLIC_MAPBOX_TOKEN=<your token>" > .env
+cp .env.example .env.local   # then fill in PUBLIC_MAPBOX_TOKEN and PUBLIC_MAPTILER_KEY
 pnpm dev
 ```
 
